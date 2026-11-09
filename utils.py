@@ -3,6 +3,17 @@ import torch
 from constants._connectivity import get_connectivity_weight
 from constants._connectivity import CONNECTIVITY_TYPES
 import numpy as np
+import random
+
+
+def seed_all(seed: int) -> None:
+    """Seed Python's `random`, NumPy's global RNG, and torch (CPU + CUDA)."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
 
 def complex_format_fn(function_values, edge_index, complex_format='trispecific'):
     """
@@ -57,4 +68,3 @@ def complex_format_fn(function_values, edge_index, complex_format='trispecific')
                 weighted_function_values @ A + 
             weighted_function_values @ A @ A).sum()  / len(weighted_function_values)    
 
-    
