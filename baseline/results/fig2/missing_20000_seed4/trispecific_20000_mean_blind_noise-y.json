@@ -1,0 +1,175 @@
+{
+  "config": {
+    "format": "trispecific",
+    "sizes": [
+      20000
+    ],
+    "seeds": [
+      4
+    ],
+    "test_size": 2000,
+    "dim": 64,
+    "num_layers": 3,
+    "multiplier": 2,
+    "layernorm": false,
+    "motif_length": 3,
+    "batch_size": 16,
+    "lr": 0.001,
+    "max_epochs": 50,
+    "patience": 50,
+    "encoder": "mean",
+    "conn_emb": false,
+    "noise_type": "y",
+    "noise_levels": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "workers": 3,
+    "out": "baseline/results/fig2/missing_20000_seed4"
+  },
+  "data_cfg": {
+    "num_states": 297,
+    "num_motifs": 10,
+    "motif_length": 3,
+    "edit_prob": 0.3,
+    "noise_level": 0.0
+  },
+  "task_seed": 177,
+  "test_seed": 10000,
+  "noise_ref": {
+    "sd_y": 19.839326858520508,
+    "sd_f": 3.4133336544036865
+  },
+  "params": {
+    "gin": 55300,
+    "mlp": 55297
+  },
+  "runs": [
+    {
+      "model": "gin",
+      "seed": 4,
+      "n_train": 18000,
+      "n_val": 2000,
+      "params": 55300,
+      "rmse": 6.4758687019348145,
+      "spearman": 0.9141023844279955,
+      "best_epoch": 26,
+      "epochs_run": 50,
+      "best_val_mse_std": 0.26981663703918457,
+      "size": 20000,
+      "noise_level": 0.5
+    },
+    {
+      "model": "mlp",
+      "seed": 4,
+      "n_train": 18000,
+      "n_val": 2000,
+      "params": 55297,
+      "rmse": 19.835050582885742,
+      "spearman": NaN,
+      "best_epoch": 13,
+      "epochs_run": 50,
+      "best_val_mse_std": 1.0073423385620117,
+      "size": 20000,
+      "noise_level": 0.5
+    },
+    {
+      "model": "gin",
+      "seed": 4,
+      "n_train": 18000,
+      "n_val": 2000,
+      "params": 55300,
+      "rmse": 7.117621898651123,
+      "spearman": 0.8892107343944656,
+      "best_epoch": 30,
+      "epochs_run": 50,
+      "best_val_mse_std": 0.5466922521591187,
+      "size": 20000,
+      "noise_level": 1.0
+    },
+    {
+      "model": "mlp",
+      "seed": 4,
+      "n_train": 18000,
+      "n_val": 2000,
+      "params": 55297,
+      "rmse": 19.83439826965332,
+      "spearman": NaN,
+      "best_epoch": 38,
+      "epochs_run": 50,
+      "best_val_mse_std": 1.0302248001098633,
+      "size": 20000,
+      "noise_level": 1.0
+    },
+    {
+      "model": "gin",
+      "seed": 4,
+      "n_train": 18000,
+      "n_val": 2000,
+      "params": 55300,
+      "rmse": 7.188736438751221,
+      "spearman": 0.8831895313917955,
+      "best_epoch": 22,
+      "epochs_run": 50,
+      "best_val_mse_std": 0.8219514489173889,
+      "size": 20000,
+      "noise_level": 2.0
+    },
+    {
+      "model": "mlp",
+      "seed": 4,
+      "n_train": 18000,
+      "n_val": 2000,
+      "params": 55297,
+      "rmse": 19.836435317993164,
+      "spearman": NaN,
+      "best_epoch": 6,
+      "epochs_run": 50,
+      "best_val_mse_std": 1.041199803352356,
+      "size": 20000,
+      "noise_level": 2.0
+    }
+  ],
+  "gaps": [
+    {
+      "size": 20000,
+      "noise_level": 0.5,
+      "gap": -13.359181880950928,
+      "sd_gin": NaN,
+      "sd_mlp": NaN,
+      "sd_pooled": NaN,
+      "sd_paired": NaN,
+      "n": 1,
+      "diffs": [
+        -13.359181880950928
+      ]
+    },
+    {
+      "size": 20000,
+      "noise_level": 1.0,
+      "gap": -12.716776371002197,
+      "sd_gin": NaN,
+      "sd_mlp": NaN,
+      "sd_pooled": NaN,
+      "sd_paired": NaN,
+      "n": 1,
+      "diffs": [
+        -12.716776371002197
+      ]
+    },
+    {
+      "size": 20000,
+      "noise_level": 2.0,
+      "gap": -12.647698879241943,
+      "sd_gin": NaN,
+      "sd_mlp": NaN,
+      "sd_pooled": NaN,
+      "sd_paired": NaN,
+      "n": 1,
+      "diffs": [
+        -12.647698879241943
+      ]
+    }
+  ]
+}
