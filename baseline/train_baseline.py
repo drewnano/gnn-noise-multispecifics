@@ -215,6 +215,10 @@ MODELS = {'gin': GIN, 'mlp': BlindMLP}
 
 
 def build_model(kind, args):
+    """kind: 'gin', 'mlp', or 'mlp_topo' (MLP that always gets the per-topology embedding, whatever --conn-emb says)."""
+    if kind == 'mlp_topo':
+        return BlindMLP(len(aa_to_idx), args.dim, args.num_layers, len(CONNECTIVITY_TYPES[args.format]),
+                        args.encoder, args.multiplier, args.layernorm)
     num_topologies = len(CONNECTIVITY_TYPES[args.format]) if args.conn_emb else 0
     return MODELS[kind](len(aa_to_idx), args.dim, args.num_layers, num_topologies, args.encoder, args.multiplier,
                          args.layernorm)
@@ -238,7 +242,8 @@ def evaluate(model, loader):
     return torch.cat([predict(model, b) for b in loader])
 
 
-def train_one(kind, train, val, test, seed, args):
+def train_one(kind, train, val, test, seed, args, extra_targets=None):
+    """extra_targets: optional {name: y_test tensor} to also score test predictions against (e.g. noisy labels)."""
     seed_all(seed)
     model = build_model(kind, args)
     opt = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -269,10 +274,14 @@ def train_one(kind, train, val, test, seed, args):
 
     y_te = torch.cat([d.y for d in test])
     pred = evaluate(model, test_loader) * sd + mu
-    return dict(model=kind, seed=seed, n_train=len(train), n_val=len(val), params=num_params(model),
-                rmse=float((pred - y_te).pow(2).mean().sqrt()),
-                spearman=float(spearmanr(pred.numpy(), y_te.numpy()).statistic),
-                best_epoch=best_epoch, epochs_run=epoch + 1, best_val_mse_std=best_val)
+    out = dict(model=kind, seed=seed, n_train=len(train), n_val=len(val), params=num_params(model),
+               rmse=float((pred - y_te).pow(2).mean().sqrt()),
+               spearman=float(spearmanr(pred.numpy(), y_te.numpy()).statistic),
+               best_epoch=best_epoch, epochs_run=epoch + 1, best_val_mse_std=best_val)
+    for name, y in (extra_targets or {}).items():
+        out[f'rmse_{name}'] = float((pred - y).pow(2).mean().sqrt())
+        out[f'spearman_{name}'] = float(spearmanr(pred.numpy(), y.numpy()).statistic)
+    return out
 
 
 def run_job(job):
