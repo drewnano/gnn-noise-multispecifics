@@ -242,8 +242,9 @@ def evaluate(model, loader):
     return torch.cat([predict(model, b) for b in loader])
 
 
-def train_one(kind, train, val, test, seed, args, extra_targets=None):
-    """extra_targets: optional {name: y_test tensor} to also score test predictions against (e.g. noisy labels)."""
+def train_one(kind, train, val, test, seed, args, extra_targets=None, extra_tests=None):
+    """extra_targets: optional {name: y_test tensor} to also score test predictions against (e.g. noisy labels).
+    extra_tests: optional {name: list of Data} to also evaluate the same trained model on (e.g. a held-out topology)."""
     seed_all(seed)
     model = build_model(kind, args)
     opt = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -281,6 +282,11 @@ def train_one(kind, train, val, test, seed, args, extra_targets=None):
     for name, y in (extra_targets or {}).items():
         out[f'rmse_{name}'] = float((pred - y).pow(2).mean().sqrt())
         out[f'spearman_{name}'] = float(spearmanr(pred.numpy(), y.numpy()).statistic)
+    for name, ds in (extra_tests or {}).items():
+        y = torch.cat([d.y for d in ds])
+        p = evaluate(model, DataLoader(ds, batch_size=512)) * sd + mu
+        out[f'rmse_{name}'] = float((p - y).pow(2).mean().sqrt())
+        out[f'spearman_{name}'] = float(spearmanr(p.numpy(), y.numpy()).statistic)
     return out
 
 
