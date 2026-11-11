@@ -197,7 +197,7 @@ optimization failure from generalization failure:
 Under saturation the GIN never fits anything — 1.011 is *worse* than predicting the mean, with its best
 checkpoint at epoch 19 of 50 — while the conditioned MLP reaches 0.878 on identical labels. 0 of 5 GIN seeds escaped the plateau at h = 0.5 or 0.25, at any N. But under batch ρ = 1 the two are *identical* at 0.344: the GIN optimizes perfectly well there, onto the artifact, exactly as the MLP does. And under fold error the GIN trails at N = 1,000 (0.734 vs 0.486) and ties at N = 5,000.
 
-So "the GNN is less robust to noise" is only supported for **saturating readouts**. The proposed mechanism 
+So "the GIN is less robust to noise" is only supported for **saturating readouts**. The proposed mechanism 
 that the GIN must amplify a subtle structural signal through three message-passing layers, and tanh compresses the gradient hardest in the tails where that signal lives is not tested.
 
 ## 5. Experiment 3 — leave-one-topology-out
