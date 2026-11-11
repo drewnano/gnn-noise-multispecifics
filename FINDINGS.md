@@ -1,7 +1,7 @@
 # Does the GNN in this benchmark beat a parameter-matched MLP?
 
 I conducted Three experiments on the synthetic benchmark from [arXiv:2601.23212](https://arxiv.org/abs/2601.23212),*Disentangling multispecific antibody function with graph neural networks*. All settings follow the paper'sTable 1 wherever the paper and this repo disagree; the disagreements are catalogued in
-[PAPER_VS_REPO.md](PAPER_VS_REPO.md).
+[baseline/PAPER_VS_REPO.md](baseline/PAPER_VS_REPO.md).
 
 **Summary** Figure 2 reproduces: the GIN beats a connectivity-blind MLP by a wide margin, and the margin
 grows with dataset size. But that margin is entirely topology identification, and nine learned scalars
@@ -94,7 +94,7 @@ format, broadcast to every node and concatenated (node features go 64 → 65). T
 - The repo's `mlp.yaml` and `gin.yaml` both set `use_connectivity_embedding: true`, so the repo as shipped
   does not reproduce Figure 2 — its MLP is the conditioned variant. Figure 2 here uses the blind MLP.
 - The repo's `GINConv` MLP contains a LayerNorm not described in the paper. With the paper's mean encoder it makes the GIN collapse to predict-the-mean in ~4/5 seeds at every N. Ablated at N=2000: 1/3 seeds learned with it, 3/3 without. It is off by default here; the collapsed runs are kept in
-  `results/fig2/collapsed_layernorm/`.
+  `baseline/results/fig2/collapsed_layernorm/`.
 
 ---
 
@@ -102,7 +102,7 @@ format, broadcast to every node and concatenated (node features go 64 → 65). T
 
 **Method.** GIN vs blind MLP at N = 100 … 20,000, 5 seeds, plus additive Gaussian label noise at
 0, 0.1, 0.25, 0.5, 1 and 2 × sd(y) applied to training labels only. 240 jobs.
-Code: `train_baseline.py`; figure: `plot_fig2.py`; results: `results/fig2/`.
+Code: `baseline/train_baseline.py`; figure: `baseline/plot_fig2.py`; results: `baseline/results/fig2/`.
 
 **Result.** The qualitative claim reproduces. The blind MLP is flat at 19.84 — predict-the-mean — at every
 N, exactly as point 3 of §1 predicts it must be, since it cannot see topology and topology is 88% of the
@@ -154,7 +154,7 @@ carries 1.5-fold error on top.
 
 Each run is scored twice: against the **true** test labels, and against **observed** test labels from the same
 campaigns, which is what a random split of a real dataset would report. 9 conditions × 6 sizes × 5 seeds ×
-3 models = 810 model runs. Code: `noise_study.py`; figure: `plot_noise_study.py`; results: `results/noise_study/`.
+3 models = 810 model runs. Code: `baseline/noise_study.py`; figure: `baseline/plot_noise_study.py`; results: `baseline/results/noise_study/`.
 
 **Results at N = 5,000, RMSE against true labels** (sd(y) = 19.84, topology-only = 7.00):
 
@@ -210,7 +210,7 @@ claim a 9-row lookup table cannot satisfy by construction.
 **Method.** Each of the 9 topologies mentioned in the manuscript is held out in turn. Training molecules come only from the other 8
 (pool 5,000 before the drop, ~4,440 after); each model is then scored on the unseen topology and, for context,
 on the seen ones. Clean labels. 9 folds × 5 seeds × 3 models = 135 runs.
-Code: `heldout_topology.py`; figure: `plot_heldout.py`; results: `results/heldout/`.
+Code: `baseline/heldout_topology.py`; figure: `baseline/plot_heldout.py`; results: `baseline/results/heldout/`.
 
 The conditioned MLP's embedding row for a held-out format never receives a gradient, so its failure there is
 guaranteed and uninteresting. The question is whether the **GIN** beats two topology-free baselines, both
@@ -292,7 +292,7 @@ These are real and would change the picture:
   numbers are noisier than they look. The saturation result in particular is an optimization finding; a longer
   budget or a warm start could change it.
 - **Figure 2's axis metric and gap sizes in the paper were not readable** from the HTML, so the reproduction is
-  qualitative. Absolute numbers are not expected to match — the sequence set differs (§10 of PAPER_VS_REPO.md).
+  qualitative. Absolute numbers are not expected to match — the sequence set differs (row 10 of baseline/PAPER_VS_REPO.md).
 - **Single task instance.** One draw of Ehrlich functions (`TASK_SEED`), not averaged over tasks.
 
 ## 8. Reproducing
@@ -305,4 +305,4 @@ python -m baseline.<script> --summarize           # rebuild tables from runs.jso
 python -m baseline.plot_fig2 | plot_noise_study | plot_heldout
 ```
 
-Every run is one line in the relevant `results/*/runs.jsonl`, carrying its own condition, size, seed and model,so all tables and figures are regenerable. The study scripts resume: re-running skips completed cells.
+Every run is one line in the relevant `baseline/results/*/runs.jsonl`, carrying its own condition, size, seed and model,so all tables and figures are regenerable. The study scripts resume: re-running skips completed cells.
