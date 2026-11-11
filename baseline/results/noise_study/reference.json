@@ -1,0 +1,64 @@
+{
+  "sd_y": 19.839326858520508,
+  "median_y": 85.67911529541016,
+  "topo_only": 6.997855186462402,
+  "conditions": {
+    "clean": {},
+    "lognormal_0.2": {
+      "log_sd": 0.2
+    },
+    "lognormal_0.35": {
+      "log_sd": 0.35
+    },
+    "batch_rho0": {
+      "log_sd": 0.2,
+      "rho": 0.0,
+      "batch_gain": 0.2,
+      "batch_offset": 0.5
+    },
+    "batch_rho0.5": {
+      "log_sd": 0.2,
+      "rho": 0.5,
+      "batch_gain": 0.2,
+      "batch_offset": 0.5
+    },
+    "batch_rho1": {
+      "log_sd": 0.2,
+      "rho": 1.0,
+      "batch_gain": 0.2,
+      "batch_offset": 0.5
+    },
+    "sat_1": {
+      "log_sd": 0.2,
+      "sat": 1.0
+    },
+    "sat_0.5": {
+      "log_sd": 0.2,
+      "sat": 0.5
+    },
+    "sat_0.25": {
+      "log_sd": 0.2,
+      "sat": 0.25
+    }
+  },
+  "train_args": {
+    "format": "trispecific",
+    "dim": 64,
+    "num_layers": 3,
+    "multiplier": 2,
+    "encoder": "mean",
+    "conn_emb": false,
+    "layernorm": false,
+    "batch_size": 16,
+    "lr": 0.001,
+    "max_epochs": 50,
+    "patience": 50
+  },
+  "data_cfg": {
+    "num_states": 297,
+    "num_motifs": 10,
+    "motif_length": 3,
+    "edit_prob": 0.3,
+    "noise_level": 0.0
+  }
+}

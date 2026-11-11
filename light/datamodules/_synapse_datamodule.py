@@ -34,6 +34,7 @@ class DataModuleConfig:
     train_connectivity_types: Optional[Tuple[int, ...]] = None
     test_connectivity_types: Optional[Tuple[int, ...]] = None
     epistasis_factor: float = 0.0
+    data_seed: Optional[int] = None  # seeds random/numpy/torch for dataset generation; None = unseeded
     batch_size: int = 32
     num_workers: int = 0
     persistent_workers: bool = False
@@ -78,13 +79,15 @@ class SynapseDataModule(LightningDataModule):
                        epistasis_factor=self.config.epistasis_factor)
                 for i in range(self.config.num_fabs)]
 
-    def _create_dataset(self, ehrlich_fns=None, num_samples=None, connectivity_filter=None):
+    def _create_dataset(self, ehrlich_fns=None, num_samples=None, connectivity_filter=None, seed_offset=0):
+        # Distinct offsets keep separately-built train/test datasets from sampling identical sequences
+        seed = None if self.config.data_seed is None else self.config.data_seed + seed_offset
         return AntibodySyntheticDataset(
             num_states=self.config.num_states, num_motifs=self.config.num_motifs,
             motif_length=self.config.motif_length, initial_seed=self.config.seed,
             num_samples=num_samples or self.config.num_samples, input_type=self.config.input_type,
             edit_prob=self.config.edit_prob, noise_level=self.config.noise_level,
-            ehrlich_functions=ehrlich_fns, connectivity_filter=connectivity_filter)
+            ehrlich_functions=ehrlich_fns, connectivity_filter=connectivity_filter, seed=seed)
 
     def setup(self, stage=None):
         if self.train_dataset is not None:
@@ -95,7 +98,7 @@ class SynapseDataModule(LightningDataModule):
         if self.config.fixed_test_size is not None:
             shared = self._generate_ehrlich_functions()
             test_ehrlich = self._generate_ehrlich_functions(self.config.test_motif_seed_offset) if self.config.test_different_motifs else shared
-            self.test_dataset = self._create_dataset(test_ehrlich, self.config.fixed_test_size)
+            self.test_dataset = self._create_dataset(test_ehrlich, self.config.fixed_test_size, seed_offset=1)
             train_val = self._create_dataset(shared)
             val_size = max(1, int(0.1 * len(train_val)))
             self.train_dataset, self.val_dataset = torch.utils.data.random_split(
@@ -103,7 +106,7 @@ class SynapseDataModule(LightningDataModule):
 
         elif self.config.connectivity_split:
             self.train_dataset = self._create_dataset(connectivity_filter=list(self.config.train_connectivity_types))
-            self.test_dataset = self._create_dataset(connectivity_filter=list(self.config.test_connectivity_types))
+            self.test_dataset = self._create_dataset(connectivity_filter=list(self.config.test_connectivity_types), seed_offset=1)
             val_size = int(0.1 * len(self.train_dataset))
             self.train_dataset, self.val_dataset = torch.utils.data.random_split(
                 self.train_dataset, [len(self.train_dataset) - val_size, val_size], generator=self.generator)

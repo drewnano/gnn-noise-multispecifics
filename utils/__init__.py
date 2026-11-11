@@ -13,7 +13,8 @@ spec = importlib.util.spec_from_file_location("utils_module", utils_path)
 utils_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(utils_module)
 
-# Export the function
+# Export the functions
 complex_format_fn = utils_module.complex_format_fn
+seed_all = utils_module.seed_all
 
-__all__ = ['complex_format_fn']
+__all__ = ['complex_format_fn', 'seed_all']

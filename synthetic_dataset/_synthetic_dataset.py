@@ -13,7 +13,7 @@ from torch_geometric.data import Data
 from holo.test_functions.closed_form import Ehrlich
 from constants._connectivity import CONNECTIVITY_TYPES
 from constants._amino_acids import aa_to_idx
-from utils import complex_format_fn
+from utils import complex_format_fn, seed_all
 
 _position_probs_cache = {}
 
@@ -50,7 +50,7 @@ def sequence_sampler(initial_sequence, edit_prob, num_samples):
 class AntibodySyntheticDataset(Dataset):
     def __init__(self, num_states, num_motifs, initial_seed, num_samples, noise_level=0.1,
                  edit_prob=0.1, input_type='trispecific', connectivity_filter=None,
-                 ehrlich_functions=None, epistasis_factor=0.0, motif_length=3):
+                 ehrlich_functions=None, epistasis_factor=0.0, motif_length=3, seed=None):
 
         self.input_type = input_type
         fabs_map = {'monospecific': 1, 'bispecific': 2, 'trispecific': 3, 'trispecific_example': 3,
@@ -69,10 +69,15 @@ class AntibodySyntheticDataset(Dataset):
         self.connectivity_filter = connectivity_filter
         self.epistasis_factor = epistasis_factor
         self.ehrlich_functions = ehrlich_functions
+        self.seed = seed
 
         self.data = self._preprocess_data()
 
     def _preprocess_data(self):
+        # Seed global RNGs (motif placement, sequence sampling, noise, topology draw); None keeps old behavior
+        if self.seed is not None:
+            seed_all(self.seed)
+
         # Generate or use provided Ehrlich functions
         if self.ehrlich_functions is None:
             self.ehrlich_functions = [
